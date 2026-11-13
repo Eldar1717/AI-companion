@@ -1,0 +1,6 @@
+# Development / testing extras (optional)
+-r requirements.txt
+pytest>=8.0
+mediapipe>=1.2     # portrait analysis (face.json generator) — macOS arm64 wheel available
+Pillow>=10.0
+playwright>=1.40   # browser smoke test: python -m playwright install chromium

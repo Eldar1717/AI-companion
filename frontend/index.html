@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1116">
+<title>AI Companion</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26">
+          <circle cx="16" cy="16" r="13" fill="none" stroke="url(#g)" stroke-width="2.5"/>
+          <circle cx="16" cy="16" r="4.5" fill="url(#g)"/>
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="32" y2="32">
+              <stop offset="0%" stop-color="#7fd1ff"/>
+              <stop offset="100%" stop-color="#b48cff"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1 id="avatar-name">AI Companion</h1>
+        <p class="brand-sub" id="connection-line">подключение…</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn ghost" id="btn-memory" title="Память">Память</button>
+      <button class="btn ghost" id="btn-settings" title="Настройки">Настройки</button>
+      <button class="btn ghost" id="btn-sound" title="Звук включён" aria-pressed="true">
+        <span class="sound-dot"></span><span id="sound-label">Звук</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- ------------------------------------------------------------------ stage
+         -------------------------------------------------------------------------->
+    <section class="stage" id="stage" aria-label="Портрет персонажа">
+      <div class="stage-glow" aria-hidden="true"></div>
+      <div class="portrait-wrap">
+        <canvas id="avatar" width="760" height="950" aria-label="Анимированный портрет"></canvas>
+        <div class="stage-badge" id="stage-badge" data-state="idle">
+          <span class="stage-badge-dot"></span><span id="stage-badge-text">Ожидание</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="ctrl primary" id="btn-mic" aria-pressed="false" title="Голосом">
+          <span class="ctrl-icon">🎙</span><span class="ctrl-label">Голосом</span>
+        </button>
+        <button class="ctrl" id="btn-stop" disabled title="Остановить ответ">
+          <span class="ctrl-icon">⏸</span><span class="ctrl-label">Стоп</span>
+        </button>
+        <button class="ctrl danger" id="btn-end" title="Завершить голосовой диалог">
+          <span class="ctrl-icon">✕</span><span class="ctrl-label">Завершить</span>
+        </button>
+      </div>
+
+      <div class="stage-hint" id="stage-hint">Нажмите «Голосом», чтобы поговорить</div>
+
+      <div class="voice-meter" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------------------- chat
+         -------------------------------------------------------------------------->
+    <section class="chat" aria-label="Диалог">
+      <div class="chat-head">
+        <h2>Диалог</h2>
+        <div class="chat-head-actions">
+          <button class="btn tiny" id="btn-clear-history">Очистить</button>
+          <button class="btn tiny" id="btn-new-conversation">Новая беседа</button>
+        </div>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <form class="composer" id="composer">
+        <textarea id="composer-input" rows="1" placeholder="Напишите сообщение…" maxlength="4000"
+                  autocomplete="off"></textarea>
+        <button class="send" type="submit" title="Отправить" disabled>➤</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- ----------------------------------------------------------------- drawers
+         --------------------------------------------------------------------->
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+
+  <aside class="drawer" id="drawer-memory" hidden aria-label="Память">
+    <div class="drawer-head">
+      <h2>Память</h2>
+      <button class="btn tiny" id="btn-memory-close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="memory-block">
+        <div class="memory-block-head">
+          <h3>Сохранение</h3>
+          <label class="switch">
+            <input type="checkbox" id="mem-save-toggle">
+            <span></span>
+          </label>
+        </div>
+        <p class="muted">Пока подключено, диалог и главные факты о вас сохраняются локально в SQLite.</p>
+        <button class="btn tiny danger" id="btn-memory-clear-history">Очистить историю</button>
+        <div class="memory-stats" id="memory-stats"></div>
+      </div>
+
+      <div class="memory-block">
+        <div class="memory-block-head"><h3>Важные факты</h3><span class="count" id="facts-count">0</span></div>
+        <ul class="fact-list" id="fact-list"></ul>
+      </div>
+
+      <div class="memory-block">
+        <div class="memory-block-head"><h3>История</h3><span class="count" id="history-count">0</span></div>
+        <ul class="history-list" id="history-list"></ul>
+      </div>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="drawer-settings" hidden aria-label="Настройки">
+    <div class="drawer-head">
+      <h2>Настройки</h2>
+      <button class="btn tiny" id="btn-settings-close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <section class="settings-section">
+        <h3>Голос</h3>
+        <div class="setting"><label for="set-voice">Голос</label>
+          <select id="set-voice"></select></div>
+        <div class="setting"><label for="set-rate">Скорость речи <span class="val" id="val-rate">1.00×</span></label>
+          <input type="range" id="set-rate" min="0.7" max="1.6" step="0.05"></div>
+        <div class="setting"><label for="set-volume">Громкость <span class="val" id="val-volume">100%</span></label>
+          <input type="range" id="set-volume" min="0" max="2" step="0.05"></div>
+        <div class="setting"><label for="set-think">Модель мысли (thinking)</label>
+          <select id="set-think">
+            <option value="false">Быстрый ответ</option>
+            <option value="true">С глубиной рассуждения</option>
+          </select></div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Восприятие</h3>
+        <div class="setting"><label for="set-silence">Пауза для конца фразы <span class="val" id="val-silence">700 мс</span></label>
+          <input type="range" id="set-silence" min="250" max="4000" step="50"></div>
+        <div class="setting"><label for="set-minspeech">Минимальная фраза <span class="val" id="val-minspeech">220 мс</span></label>
+          <input type="range" id="set-minspeech" min="100" max="2000" step="20"></div>
+        <div class="setting"><label for="set-barge">Уровень перебивания <span class="val" id="val-barge">-16 дБ</span></label>
+          <input type="range" id="set-barge" min="-60" max="0" step="1"></div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Анимация</h3>
+        <div class="setting"><label>Моргание, глаза, голову</label>
+          <label class="switch"><input type="checkbox" id="set-animations"><span></span></label></div>
+        <div class="setting"><label>Поведение в ожидании</label>
+          <label class="switch"><input type="checkbox" id="set-idle"><span></span></label></div>
+        <div class="setting"><label>Эмоции и мимика</label>
+          <label class="switch"><input type="checkbox" id="set-emotions"><span></span></label></div>
+        <div class="setting"><label>Следящие за взглядом (MediaPipe)</label>
+          <label class="switch"><input type="checkbox" id="set-eyetrack"><span></span></label></div>
+        <div class="setting"><label for="set-tracker">Слежение в браузере</label>
+          <select id="set-tracker">
+            <option value="auto">Авто</option>
+            <option value="on">Только слежение</option>
+            <option value="off">Отключено</option>
+          </select></div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Характер</h3>
+        <label class="field-label" for="set-persona-name">Имя персонажа</label>
+        <input type="text" id="set-persona-name" maxlength="60">
+        <label class="field-label" for="set-personality">Системный промпт персонажа</label>
+        <textarea id="set-personality" rows="10" spellcheck="false"></textarea>
+        <div class="row-actions">
+          <button class="btn tiny" id="btn-persona-save">Сохранить характер</button>
+          <button class="btn tiny ghost" id="btn-persona-reset">По умолчанию</button>
+          <span class="muted" id="persona-saved"></span>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Раздел лица</h3>
+        <p class="muted">Киньте границы глаз и рта, если автоматическое определение не точное.</p>
+        <div class="region-editor">
+          <canvas id="region-canvas" width="420" height="560"></canvas>
+          <div class="region-list">
+            <div class="region-row"><label>Правый глаз</label>
+              <span class="region-coords" data-region="right_eye"></span></div>
+            <div class="region-row"><label>Левый глаз</label>
+              <span class="region-coords" data-region="left_eye"></span></div>
+            <div class="region-row"><label>Рот</label>
+              <span class="region-coords" data-region="mouth"></span></div>
+            <button class="btn tiny" id="btn-region-reset">Сбросить автоматическое</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>О системе</h3>
+        <pre class="system-info" id="system-info">—</pre>
+      </section>
+    </div>
+  </aside>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+</div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

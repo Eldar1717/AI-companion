@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+data/
+models/piper/*.onnx
+models/piper/*.onnx.json
+models/whisper/
+models/face_landmarker.task
+.DS_Store
+*.log
+.pytest_cache/

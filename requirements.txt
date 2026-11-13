@@ -1,0 +1,9 @@
+# AI Companion — runtime dependencies (Python 3.9+)
+Flask>=3.1,<4
+waitress>=3.0,<4
+requests>=2.31
+numpy>=1.26
+av>=12.0            # decodes WebM/Opus from MediaRecorder
+faster-whisper>=1.1 # local Whisper STT (pulls ctranslate2, tokenizers, huggingface_hub)
+piper-tts>=1.8      # local Piper TTS (GPL-3.0-or-later, see LICENSE-THIRD-PARTY.md)
+onnx>=1.16          # in-memory patching of Piper models for phoneme timings

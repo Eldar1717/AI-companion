@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131f">
+  <meta name="description" content="Локальный голосовой ИИ-компаньон">
+  <title>AI Companion — виртуальная собеседница</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="AI Companion — главная">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span><b>AI</b> COMPANION</span>
+      </a>
+      <div class="topbar-right">
+        <div class="privacy-pill"><span class="privacy-dot"></span> Локальный режим</div>
+        <button class="icon-button" id="clear-history" title="Очистить историю" aria-label="Очистить историю">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-.8 13H6.8L6 7m4 4v5m4-5v5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="character-column">
+        <div class="section-eyebrow"><span class="eyebrow-line"></span> ТВОЙ ВИРТУАЛЬНЫЙ КОМПАНЬОН</div>
+
+        <div class="avatar-card" id="avatar-card">
+          <div class="avatar-image-wrap">
+            <img src="/static/assets/avatar.png" class="avatar-image" alt="Внешность виртуальной собеседницы">
+            <div class="image-vignette"></div>
+          </div>
+          <div class="avatar-topline">
+            <div class="online-indicator"><span></span> <span id="avatar-state">На связи</span></div>
+            <div class="avatar-version">AI · LOCAL</div>
+          </div>
+          <div class="avatar-bottom">
+            <div class="avatar-orbit orbit-one"></div>
+            <div class="avatar-orbit orbit-two"></div>
+            <div class="avatar-name">Твоя спутница</div>
+            <div class="avatar-tagline" id="avatar-tagline">Я рядом. Давай поговорим.</div>
+            <div class="voice-wave" id="voice-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+
+        <div class="character-note">
+          <div class="note-icon"><svg viewBox="0 0 24 24"><path d="M12 3.5 14.2 9l5.8 2.2-5.8 2.1L12 19l-2.2-5.7L4 11.2 9.8 9 12 3.5Z"/><path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z"/></svg></div>
+          <p>Здесь можно говорить обо всём — от идей и планов до обычных повседневных разговоров.</p>
+        </div>
+
+        <div class="system-card">
+          <div class="system-card-head"><span class="system-pulse"></span> СИСТЕМА</div>
+          <div class="system-row"><span>ИИ-модель</span><b id="model-name">Qwen3 4B</b></div>
+          <div class="system-row"><span>Подключение</span><b id="connection-label" class="connection-wait">Проверка...</b></div>
+          <div class="system-foot" id="system-foot">Ответы генерируются на этом компьютере</div>
+        </div>
+      </aside>
+
+      <section class="chat-column" aria-label="Диалог">
+        <div class="chat-header">
+          <div>
+            <div class="chat-heading">Разговор</div>
+            <div class="chat-subheading">Личное пространство для общения</div>
+          </div>
+          <div class="chat-header-actions">
+            <button class="sound-toggle active" id="sound-toggle" aria-pressed="true" title="Включить или выключить озвучивание">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l4 3V7l-4 3H4Z"/><path d="M15 9.5a4 4 0 0 1 0 5m2.5-7.5a7.5 7.5 0 0 1 0 10"/></svg>
+              <span>Голос включён</span>
+            </button>
+            <button class="icon-button stop-button" id="stop-speaking" title="Остановить речь" aria-label="Остановить речь">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="voice-settings">
+          <label class="voice-control"><span>ГОЛОС</span><select id="voice-select" aria-label="Выбор голоса"><option value="">Автовыбор · русский</option></select></label>
+          <label class="voice-control speed-control"><span>СКОРОСТЬ</span><select id="voice-rate" aria-label="Скорость речи"><option value="0.85">0.85×</option><option value="1" selected>1.0×</option><option value="1.15">1.15×</option><option value="1.25">1.25×</option></select></label>
+        </div>
+
+        <div class="messages" id="messages" aria-live="polite" aria-relevant="additions text">
+          <div class="welcome-message" id="welcome-message">
+            <div class="welcome-avatar"><img src="/static/assets/avatar.png" alt=""></div>
+            <div class="welcome-copy">
+              <div class="message-author">Твоя спутница <span>• только что</span></div>
+              <div class="message-bubble assistant-bubble">Привет! Рада знакомству. Можешь нажать на микрофон и просто рассказать, что у тебя на уме. Я слушаю. <span class="message-time">сейчас</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="typing-state" id="typing-state" aria-live="polite">
+          <span class="typing-dots"><i></i><i></i><i></i></span><span id="typing-label">Подбираю слова...</span>
+        </div>
+
+        <div class="quick-prompts" id="quick-prompts">
+          <button class="prompt-chip" data-prompt="Давай познакомимся. Расскажи немного о себе.">Давай познакомимся</button>
+          <button class="prompt-chip" data-prompt="Помоги мне придумать что-нибудь интересное на сегодня.">Есть идеи на сегодня?</button>
+          <button class="prompt-chip" data-prompt="Хочу просто поговорить. Как у тебя дела?">Просто поговорить</button>
+        </div>
+
+        <div class="composer-wrap">
+          <form class="composer" id="message-form">
+            <textarea id="message-input" rows="1" maxlength="4000" placeholder="Напиши сообщение..." aria-label="Твоё сообщение"></textarea>
+            <div class="composer-actions">
+              <div class="input-hint"><kbd>Enter</kbd> отправить <span>·</span> <kbd>Shift + Enter</kbd> новая строка</div>
+              <div class="action-buttons">
+                <button class="mic-button" id="mic-button" type="button" title="Говорить" aria-label="Начать голосовой ввод">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-3 0h6"/></svg>
+                </button>
+                <button class="send-button" id="send-button" type="submit" aria-label="Отправить сообщение" title="Отправить">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.7-7.1L3 10.2 21 3Z"/><path d="m10.1 13.9 4.3-4.3"/></svg>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="composer-footer">
+            <span id="mic-hint">Нажми на микрофон и говори</span>
+            <span class="secure-caption"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg> Диалог хранится в этом браузере</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <footer class="footer"><span>AI COMPANION <span class="footer-separator">/</span> PERSONAL SPACE</span><span>Сделано для спокойных и интересных разговоров</span></footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js" defer type="7f0f757b80168fecbf72e2c1-text/javascript"></script>
+<script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="7f0f757b80168fecbf72e2c1-|49" defer></script></body>
+</html>
